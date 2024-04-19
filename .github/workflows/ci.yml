@@ -59,7 +59,7 @@ jobs:
         shell: bash
         run: |
           pip install pipdeptree
-          pipdeptree -fl > python_dep_tree.json
+          pipdeptree -fl --json > python_dep_tree.json
 
       - name: Upload Python Dependency Tree Zip
         uses: actions/upload-artifact@v4
@@ -83,9 +83,23 @@ jobs:
         run: |
           coverage combine
           coverage report
+          coverage json
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v4
         with:
           name: python-coverage-report
-          path: .coverage
+          path: coverage.json
+
+      - name: Create SBOM
+        shell: bash
+        run: |
+          cp requirements-dev.txt requirements.txt
+          pip install cyclonedx-bom
+          python3 -m cyclonedx_py requirements -o sbom.json
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-sbom
+          path: sbom.json
