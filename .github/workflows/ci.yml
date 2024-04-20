@@ -43,7 +43,7 @@ jobs:
 
       - name: Build Python Package
         shell: bash
-        run: ./setup.py build
+        run: python setup.py build
 
       - name: Tar Python Build
         shell: bash
@@ -72,11 +72,11 @@ jobs:
         env:
           PYTEST_PASSWORD: root
           PYTEST_HOST: 127.0.0.1
-        run: ./setup.py test --pytest-args="--cov-report= --cov=mycli"
+        run: python setup.py test --pytest-args="--cov-report= --cov=mycli"
 
       - name: Run Lint
         shell: bash
-        run: ./setup.py lint --branch=HEAD
+        run: python setup.py lint --branch=HEAD
 
       - name: Generate Coverage
         shell: bash
@@ -103,3 +103,14 @@ jobs:
         with:
           name: python-sbom
           path: sbom.json
+
+  run_sca_scanning:
+    needs: [ build_application ]
+    name: Run SCA Scanning Workflow
+    uses: seansmith39/H6060-Experiment-1-SCA-Scans/.github/workflows/sca_scan_python.yml@main
+    secrets: inherit
+    with:
+      eclipse-steady-workspace-token: ${{ secrets.ECLIPSE_STEADY_WORKSPACE_TOKEN }}
+      python-artifact-name: mycli
+      python-source-dir: mycli
+      nvd-api-key: ${{ secrets.NVD_API_KEY }}
