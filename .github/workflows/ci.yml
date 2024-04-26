@@ -97,13 +97,13 @@ jobs:
   create_sbom:
     needs: [ build_application ]
     name: Run SBOM Generation
-    uses: seansmith39/H6060-Experiment-Workflows/.github/workflows/experiment_sbom_generation_python.yml@Add_Sca_SAST_Workflows
+    uses: seansmith39/H6060-Experiment-Workflows/.github/workflows/experiment_sbom_generation_python.yml@v1.0.1
     secrets: inherit
 
   run_sca_scanning:
     needs: [ build_application ]
     name: Run SCA Scanning Workflow
-    uses: seansmith39/H6060-Experiment-Workflows/.github/workflows/experiment_1_sca_python.yml@Add_Sca_SAST_Workflows
+    uses: seansmith39/H6060-Experiment-Workflows/.github/workflows/experiment_1_sca_python.yml@v1.0.1
     secrets: inherit
     with:
       python-artifact-name: mycli
@@ -112,5 +112,5 @@ jobs:
   run_sast_scanning:
     needs: [ build_application ]
     name: Run SCA Scanning Workflow
-    uses: seansmith39/H6060-Experiment-Workflows/.github/workflows/experiment_1_sast_python.yml@Add_Sca_SAST_Workflows
+    uses: seansmith39/H6060-Experiment-Workflows/.github/workflows/experiment_1_sast_python.yml@v1.0.1
     secrets: inherit
