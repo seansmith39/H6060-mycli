@@ -43,7 +43,7 @@ jobs:
 
       - name: Build Python Package
         shell: bash
-        run: ./setup.py build
+        run: python setup.py build
 
       - name: Tar Python Build
         shell: bash
@@ -72,11 +72,11 @@ jobs:
         env:
           PYTEST_PASSWORD: root
           PYTEST_HOST: 127.0.0.1
-        run: ./setup.py test --pytest-args="--cov-report= --cov=mycli"
+        run: python setup.py test --pytest-args="--cov-report= --cov=mycli"
 
       - name: Run Lint
         shell: bash
-        run: ./setup.py lint --branch=HEAD
+        run: python setup.py lint --branch=HEAD
 
       - name: Generate Coverage
         shell: bash
@@ -84,22 +84,33 @@ jobs:
           coverage combine
           coverage report
           coverage json
+          coverage xml
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v4
         with:
           name: python-coverage-report
-          path: coverage.json
+          path: |
+            coverage.json
+            coverage.xml
 
-      - name: Create SBOM
-        shell: bash
-        run: |
-          cp requirements-dev.txt requirements.txt
-          pip install cyclonedx-bom
-          python3 -m cyclonedx_py requirements -o sbom.json
+  create_sbom:
+    needs: [ build_application ]
+    name: Run SBOM Generation
+    uses: seansmith39/H6060-Experiment-Workflows/.github/workflows/experiment_sbom_generation_python.yml@v1.0.1
+    secrets: inherit
 
-      - name: Upload SBOM
-        uses: actions/upload-artifact@v4
-        with:
-          name: python-sbom
-          path: sbom.json
+  run_sca_scanning:
+    needs: [ build_application ]
+    name: Run SCA Scanning Workflow
+    uses: seansmith39/H6060-Experiment-Workflows/.github/workflows/experiment_1_sca_python.yml@v1.0.1
+    secrets: inherit
+    with:
+      python-artifact-name: mycli
+      python-source-dir: mycli
+
+  run_sast_scanning:
+    needs: [ build_application ]
+    name: Run SCA Scanning Workflow
+    uses: seansmith39/H6060-Experiment-Workflows/.github/workflows/experiment_1_sast_python.yml@v1.0.1
+    secrets: inherit
